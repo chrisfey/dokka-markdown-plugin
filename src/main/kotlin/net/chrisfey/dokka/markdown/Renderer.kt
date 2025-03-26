@@ -39,8 +39,8 @@ import org.jetbrains.dokka.utilities.htmlEscape
 
 open class Renderer(
     context: DokkaContext,
-    private val config: Configuration?,
-) : CommonmarkRenderer(context){
+    private val config: Configuration,
+) : CommonmarkRenderer(context) {
 
     override val preprocessors: List<PageTransformer> = context.plugin<GfmPlugin>().query { gfmPreprocessors }
 
@@ -57,16 +57,19 @@ open class Renderer(
                 childrenCallback()
                 buildParagraph()
             }
+
             node.dci.kind == ContentKind.Deprecation -> {
                 append("---")
                 childrenCallback()
                 append("---")
                 buildNewLine()
             }
+
             node.hasStyle(ContentStyle.Footnote) -> {
                 childrenCallback()
                 buildParagraph()
             }
+
             else -> childrenCallback()
         }
     }
@@ -272,6 +275,8 @@ open class Renderer(
         }
     }
 
+    private fun String.htmlEscape(): String = replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
+
     override fun StringBuilder.buildNavigation(page: PageNode) {
         locationProvider.ancestors(page).asReversed().forEach { node ->
             append("/")
@@ -282,6 +287,21 @@ open class Renderer(
     }
 
     override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String =
+        when(config.mode){
+            is Mode.Jekyll -> buildPageJekyl(page, content)
+            is Mode.Gfm -> buildPageGfm(page, content)
+        }
+
+    private fun buildPageJekyl(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
+        val builder = StringBuilder()
+        builder.append("---\n")
+        builder.append("title: ${page.name}\n")
+        builder.append("---\n")
+        content(builder, page)
+        return builder.toString()
+    }
+
+    private fun buildPageGfm(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String =
         buildString {
             content(this, page)
         }.trim().replace("\n[\n]+".toRegex(), "\n\n")
