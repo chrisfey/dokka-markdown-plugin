@@ -35,11 +35,10 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.dokka.utilities.htmlEscape
 
 open class Renderer(
     context: DokkaContext,
-    private val config: Configuration,
+    private val config: Configuration?,
 ) : CommonmarkRenderer(context) {
 
     override val preprocessors: List<PageTransformer> = context.plugin<GfmPlugin>().query { gfmPreprocessors }
@@ -287,9 +286,9 @@ open class Renderer(
     }
 
     override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String =
-        when(config.mode){
+        when(config?.mode){
             is Mode.Jekyll -> buildPageJekyl(page, content)
-            is Mode.Gfm -> buildPageGfm(page, content)
+            is Mode.Gfm, null -> buildPageGfm(page, content)
         }
 
     private fun buildPageJekyl(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
