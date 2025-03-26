@@ -188,8 +188,10 @@ open class Renderer(
 
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
                 buildParagraph()
-                buildSourceSetTags(platforms.toSet())
-                buildLineBreak()
+                if (sourceSets.size > 1) {
+                    buildSourceSetTags(platforms.toSet())
+                    buildLineBreak()
+                }
                 append(text.trim())
                 buildParagraph()
             }
@@ -326,9 +328,10 @@ open class Renderer(
             val (instance, sourceSets) = entry.getInstanceAndSourceSets()
 
             buildParagraph()
-            buildSourceSetTags(sourceSets)
-            buildLineBreak()
-
+            if (sourceSets.size > 1) {
+                buildSourceSetTags(sourceSets)
+                buildLineBreak()
+            }
             instance.before?.let {
                 buildContentNode(
                     it,
