@@ -1,11 +1,11 @@
 plugins {
     kotlin("jvm") version "1.9.10"
-    id("org.jetbrains.dokka") version "1.9.10" // Used to create a javadoc jar
+    id("org.jetbrains.dokka") version "2.0.0" // Used to create a javadoc jar
     `maven-publish`
     signing
 }
 
-group = "org.example"
+group = "net.chrisfey"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -16,6 +16,7 @@ val dokkaVersion: String by project
 dependencies {
     compileOnly("org.jetbrains.dokka:dokka-core:$dokkaVersion")
     implementation("org.jetbrains.dokka:dokka-base:$dokkaVersion")
+    implementation("org.jetbrains.dokka:gfm-plugin:$dokkaVersion")
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.dokka:dokka-test-api:$dokkaVersion")
@@ -41,15 +42,15 @@ java {
 
 publishing {
     publications {
-        val dokkaTemplatePlugin by creating(MavenPublication::class) {
-            artifactId = project.name
+        val dokkaMarkdownPlugin by creating(MavenPublication::class) {
+            artifactId = "dokka-markdown-plugin"
             from(components["java"])
             artifact(javadocJar)
 
             pom {
-                name.set("Dokka template plugin")
-                description.set("This is a plugin template for Dokka")
-                url.set("https://github.com/Kotlin/dokka-plugin-template/")
+                name.set("Dokka Markdown plugin")
+                description.set("This is a plugin for Dokka 2 that supports Markdown")
+                url.set("https://github.com/chrisfey/dokka-markdown-plugin/")
 
                 licenses {
                     license {
@@ -61,20 +62,18 @@ publishing {
 
                 developers {
                     developer {
-                        id.set("JetBrains")
-                        name.set("JetBrains Team")
-                        organization.set("JetBrains")
-                        organizationUrl.set("https://www.jetbrains.com")
+                        name.set("Chris Fey")
+                        organizationUrl.set("https://chrisfey.net")
                     }
                 }
 
                 scm {
-                    connection.set("scm:git:git://github.com/Kotlin/dokka-plugin-template.git")
-                    url.set("https://github.com/Kotlin/dokka-plugin-template/tree/master")
+                    connection.set("scm:git:git://github.com/chrisfey/dokka-markdown-plugin.git")
+                    url.set("https://github.com/chrisfey/dokka-markdown-plugin/tree/master")
                 }
             }
         }
-        signPublicationsIfKeyPresent(dokkaTemplatePlugin)
+        signPublicationsIfKeyPresent(dokkaMarkdownPlugin)
     }
 
     repositories {
